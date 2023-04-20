@@ -9,7 +9,7 @@ spawn :: proc(next_entity: ^Entity) -> (entity: Entity) {
 	return
 }
 
-despawn :: proc(components: ^Component_Map, entity: Entity) {
+despawn :: proc(components: ^Component_Group, entity: Entity) {
 	for component_type_and_entity, _ in components {
 		if component_type_and_entity.entity == entity {
 			delete_key(components, component_type_and_entity)

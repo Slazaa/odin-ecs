@@ -1,21 +1,19 @@
 package ecs
 
-System :: proc(world: ^World)
-
 World :: struct {
-	components: Component_Map,
-	startup_systems: [dynamic]System,
-	systems: [dynamic]System,
-	resources: map[typeid]Resource,
+	components: Component_Group,
+	startup_systems: System_Group,
+	systems: System_Group,
+	resources: Resource_Group,
 	next_entity: Entity
 }
 
 init :: proc() -> World {
 	return World {
-		components = make(Component_Map),
-		startup_systems = make([dynamic]System),
-		systems = make([dynamic]System),
-		resources = make(map[typeid]Resource)
+		components = make(Component_Group),
+		startup_systems = make(System_Group),
+		systems = make(System_Group),
+		resources = make(Resource_Group)
 	}
 }
 
