@@ -33,6 +33,7 @@ ecs.add_component(&world.components, entity, Position { 10, 10 })
 
 // Querying components
 positions := ecs.query_component(world.components, Position)
+defer delete(positions)
 
 for position in positions {
 	// ...
