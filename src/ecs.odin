@@ -1,12 +1,9 @@
 package ecs
 
-Entity :: distinct uint
-Component :: distinct rawptr
 System :: proc(world: ^World)
-Resource :: distinct rawptr
 
 World :: struct {
-	components: map[typeid]map[Entity]Component,
+	components: Component_Map,
 	startup_systems: [dynamic]System,
 	systems: [dynamic]System,
 	resources: map[typeid]Resource,
@@ -15,7 +12,7 @@ World :: struct {
 
 init :: proc() -> World {
 	return World {
-		components = make(map[typeid]map[Entity]Component),
+		components = make(Component_Map),
 		startup_systems = make([dynamic]System),
 		systems = make([dynamic]System),
 		resources = make(map[typeid]Resource)
@@ -31,13 +28,6 @@ deinit :: proc(world: ^World) {
 	}
 
 	delete(world.components)
-}
-
-spawn :: proc(world: ^World) -> (entity: Entity) {
-	entity = world.next_entity
-	world.next_entity += 1
-
-	return
 }
 
 run :: proc(world: ^World) {
