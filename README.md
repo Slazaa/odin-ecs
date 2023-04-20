@@ -54,8 +54,8 @@ spam_system :: proc(world: ^ecs.World) {
 // ...
 
 // Adding a system
-append(&world.startup_systems, hello_system)
-append(&world.systems, spam_system)
+ecs.add_system(&world.startup_systems, hello_system)
+ecs.add_system(&world.systems, spam_system)
 
 // Removing a system
 ecs.remove_system(&world.startup_systems, hello_system)
