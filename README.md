@@ -7,6 +7,7 @@ defer ecs.deinit(&world)
 
 // ...
 
+// Run one tick
 ecs.run(&world)
 ```
 
