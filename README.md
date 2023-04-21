@@ -45,7 +45,7 @@ if position, ok := ecs.query_component_of_entity(world.components, Position, ent
 }
 
 // Removing a component
-ecs.remove_component(&world.components, entity, Position)
+ecs.remove_component(&world.components, Position, entity)
 ```
 
 ## System
