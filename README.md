@@ -78,6 +78,11 @@ My_Res :: struct { }
 // Adding a resource
 ecs.add_resource(&world.resources, My_Res { })
 
+// Querying resources
+if resource, ok := ecs.query_resource(world.resources, My_Res); ok {
+	// ...
+}
+
 // Removing a resource
 ecs.remove_resource(&world.resources, My_Res)
 ```
