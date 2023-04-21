@@ -32,7 +32,7 @@ Position :: struct { x, y: int }
 ecs.add_component(&world.components, entity, Position { 10, 10 })
 
 // Querying components
-positions := ecs.query_component(world.components, Position)
+positions := ecs.query_components(world.components, Position)
 
 for position in positions {
 	// ...
@@ -40,7 +40,7 @@ for position in positions {
 
 delete(positions)
 
-if position, ok := ecs.query_component_of_entity(world.components, Position, entity).?; ok {
+if position, ok := ecs.query_component(world.components, Position, entity).?; ok {
 	// ...
 }
 

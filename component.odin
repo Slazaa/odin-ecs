@@ -30,7 +30,7 @@ remove_component :: proc(components: ^Component_Group, $Comp_T: typeid, entity: 
 	}
 }
 
-query_component :: proc(components: Component_Group, $Comp_T: typeid) -> (query: [dynamic]Component_And_Entity(Comp_T)) {
+query_components :: proc(components: Component_Group, $Comp_T: typeid) -> (query: [dynamic]Component_And_Entity(Comp_T)) {
 	query = make([dynamic]Component_And_Entity(Comp_T))
 
 	for component_type_and_entity, component in components {
@@ -42,7 +42,7 @@ query_component :: proc(components: Component_Group, $Comp_T: typeid) -> (query:
 	return
 }
 
-query_component_of_entity :: proc(components: Component_Group, $Comp_T: typeid, entity: Entity) -> Maybe(Comp_T) {
+query_component :: proc(components: Component_Group, $Comp_T: typeid, entity: Entity) -> Maybe(Comp_T) {
 	for component_type_and_entity, component in components {
 		if
 			component_type_and_entity.component_type == Comp_T &&
