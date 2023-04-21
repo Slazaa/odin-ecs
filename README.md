@@ -1,4 +1,4 @@
-A simple Entity Component System for Odin.
+A simple Entity Component System written in Odin.
 
 ## World
 ```odin
@@ -7,7 +7,7 @@ defer ecs.deinit(&world)
 
 // ...
 
-// Run one tick
+// Run a tick
 ecs.run(&world)
 ```
 

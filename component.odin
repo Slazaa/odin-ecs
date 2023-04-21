@@ -41,3 +41,16 @@ query_component :: proc(components: Component_Group, $Comp_T: typeid) -> (query:
 
 	return
 }
+
+query_component_of_entity :: proc(components: Component_Group, $Comp_T: typeid, entity: Entity) -> Maybe(Comp_T) {
+	for component_type_and_entity, component in components {
+		if
+			component_type_and_entity.component_type == Comp_T &&
+			component_type_and_entity.entity == entity
+		{
+			return component.(Comp_T)
+		}
+	}
+
+	return nil
+}
