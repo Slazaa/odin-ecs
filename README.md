@@ -40,12 +40,12 @@ for position in positions {
 
 delete(positions)
 
-if position, ok := ecs.query_component(world.components, Position, entity).?; ok {
+if position, ok := ecs.query_component(world.components, entity, Position).?; ok {
 	// ...
 }
 
 // Removing a component
-ecs.remove_component(&world.components, Position, entity)
+ecs.remove_component(&world.components, entity, Position)
 ```
 
 ## System

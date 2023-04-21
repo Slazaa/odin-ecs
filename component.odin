@@ -18,7 +18,7 @@ add_component :: proc(components: ^Component_Group, entity: Entity, component: a
 	components[Component_Type_And_Entity { component.id, entity }] = component
 }
 
-remove_component :: proc(components: ^Component_Group, $Comp_T: typeid, entity: Entity) {
+remove_component :: proc(components: ^Component_Group, entity: Entity, $Comp_T: typeid) {
 	for component_type_and_entity, _ in components {
 		if
 			component_type_and_entity.component_type == Comp_T &&
@@ -42,7 +42,7 @@ query_components :: proc(components: Component_Group, $Comp_T: typeid) -> (query
 	return
 }
 
-query_component :: proc(components: Component_Group, $Comp_T: typeid, entity: Entity) -> Maybe(Comp_T) {
+query_component :: proc(components: Component_Group, entity: Entity, $Comp_T: typeid) -> Maybe(Comp_T) {
 	for component_type_and_entity, component in components {
 		if
 			component_type_and_entity.component_type == Comp_T &&
