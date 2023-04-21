@@ -39,6 +39,10 @@ for position in positions {
 	// ...
 }
 
+if position, ok := ecs.query_component_of_entity(world.components, Position, entity); ok {
+	// ...
+}
+
 // Removing a component
 ecs.remove_component(&world.components, entity, Position)
 ```
