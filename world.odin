@@ -12,7 +12,6 @@ World :: struct {
 	components: map[typeid]rawptr,
 	startup_systems: map[System]struct{},
 	systems: map[System]struct{},
-	resources: map[typeid]rawptr,
 	next_entity: Entity
 }
 
@@ -22,7 +21,6 @@ init :: proc() -> World {
 		components = make(map[typeid]rawptr),
 		startup_systems = make(map[System]struct{}),
 		systems = make(map[System]struct{}),
-		resources = make(map[typeid]rawptr)
 	}
 }
 
@@ -31,7 +29,6 @@ deinit :: proc(world: ^World) {
 		free(resource)
 	}
 
-	delete(world.resources)
 	delete(world.systems)
 	
 	if world.startup_systems != nil {
@@ -119,20 +116,4 @@ remove_system :: proc(world: ^World, system: System) {
 
 remove_startup_system :: proc(world: ^World, system: System) {
 	delete_key(&world.startup_systems, system)
-}
-
-// Resource
-add_resource :: proc(world: ^World, resource: $Res_T) {
-	world.resources[Res_T] = new(Res_T)
-	(^Res_T)(world.resources[Res_T])^ = resource
-}
-
-remove_resource :: proc(world: ^World, $Res_T: typeid) {
-	free(world.resources[Res_T])
-	delete_key(&world.resources, Res_T)
-}
-
-query_resource :: proc(world: ^World, $Res_T: typeid) -> Maybe(Res_T) {
-	resource, ok := world.resources[Res_T]
-	return (^Res_T)(resource)^ if ok else nil
 }

@@ -68,21 +68,3 @@ ecs.add_system(&world, spam_system)
 ecs.remove_startup_system(&world, hello_system)
 ecs.remove_system(&world, spam_system)
 ```
-
-## Resource
-```odin
-My_Res :: struct { }
-
-// ...
-
-// Adding a resource
-ecs.add_resource(&world, My_Res { })
-
-// Querying resources
-if resource, ok := ecs.query_resource(&world, My_Res); ok {
-	// ...
-}
-
-// Removing a resource
-ecs.remove_resource(&world, My_Res)
-```
