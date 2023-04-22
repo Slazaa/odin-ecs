@@ -10,9 +10,7 @@ spawn :: proc(world: ^World) -> (entity: Entity) {
 }
 
 despawn :: proc(world: ^World, entity: Entity) {
-	for component, component_group in world.components {
-		if has_component(world, entity, component) {
-			remove_component(world, entity, component)
-		}
+	for _, component_group in world.components {
+
 	}
 }

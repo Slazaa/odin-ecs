@@ -7,7 +7,7 @@ Error :: enum {
 }
 
 World :: struct {
-	components: map[typeid]Component_Group,
+	components: map[typeid]rawptr,
 	startup_systems: map[System]struct{},
 	systems: map[System]struct{},
 	resources: map[typeid]Resource,
@@ -16,7 +16,7 @@ World :: struct {
 
 init :: proc() -> World {
 	return World {
-		components = make(map[typeid]Component_Group),
+		components = make(map[typeid]rawptr),
 		startup_systems = make(map[System]struct{}),
 		systems = make(map[System]struct{}),
 		resources = make(map[typeid]Resource)
