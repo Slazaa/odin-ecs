@@ -40,7 +40,7 @@ for position in positions {
 
 delete(positions)
 
-if position, ok := ecs.get_component_by_entity(&world, entity, Position).?; ok {
+if position, ok := ecs.get_component(&world, entity, Position).?; ok {
 	// ...
 }
 
