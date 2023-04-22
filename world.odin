@@ -83,11 +83,12 @@ remove_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Erro
 	return remove_from_component_group((^Component_Group(Comp_T))(world.components[Comp_T]), entity)
 }
 
-query_components :: proc(world: ^World, $Comp_T: typeid) -> []Comp_T {
+// TODO: Replace get_components with a query procedure
+get_components :: proc(world: ^World, $Comp_T: typeid) -> []Comp_T {
 	return (^Component_Group(Comp_T))(world.components[Comp_T]).components[:]
 }
 
-query_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Maybe(Comp_T) {
+get_component_by_entity :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Maybe(Comp_T) {
 	component_group := (^Component_Group(Comp_T))(world.components[Comp_T]);	
 
 	if !(entity in component_group.entity_indices) {
