@@ -1,62 +1,62 @@
 package ecs
 
-import "core:runtime"
+import "core:fmt"
 
 Component_Group :: struct($Comp_T: typeid) {
 	components: [dynamic]Comp_T,
 	entity_indices: map[Entity]int
 }
 
-@private register_component :: proc(world: ^World, $Comp_T: typeid) -> Error {
+@private
+register_component :: proc(world: ^World, $Comp_T: typeid) {
 	if Comp_T in world.components {
-		return .COMPONENT_ALREADY_REGISTERED
+		return
 	}
 
-	world.components[Comp_T] = new(map[typeid]rawptr)
-	world.components[Comp_T]^ = Component_Group {
+	world.components[Comp_T] = new(Component_Group(Comp_T))
+	
+	component_group := cast(^Component_Group(Comp_T))world.components[Comp_T]
+
+	component_group^ = {
 		components = make([dynamic]Comp_T),
 		entity_indices = make(map[Entity]int)
 	}
-
-	return nil
 }
 
-has_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> bool {
-	return entity in world.components[Comp_T].(Component_Group).entity_indices
+@private 
+component_group_has :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> bool {
+	return entity in component_group.entity_indices
 }
 
-add_component :: proc(world: ^World, entity: Entity, component: $Comp_T) -> Error {
-	register_component(world, Comp_T)
-
-	if has_component(world, entity, Comp_T) {
+@private 
+add_to_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity, component: Comp_T) -> Error {
+	if component_group_has(component_group, entity) {
 		return .ENTITY_ALREADY_HAS_COMPONENT
 	}
 
-	component_group := world.components[Comp_T]
-
 	append(&component_group.components, component)
-	component_group.entity_indices[entity] = len(components) - 1
+	component_group.entity_indices[entity] = len(component_group.components) - 1
 
 	return nil	
 }
 
-remove_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Error {
-	if !has_component(world, entity, Comp_T) {
+@private
+remove_from_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> Error {
+	if !component_group_has(component_group, entity) {
 		return .ENTITY_DOES_NOT_HAVE_COMPONENT
 	}
 
-	component_group := world.components[Comp_T].(Component_Group)
 	entity_index := component_group.entity_indices[entity]
 	
 	ordered_remove(&component_group.components, entity_index)
 
-	for entity, index in &component_group.entity_indices {
+	for _, index in &component_group.entity_indices {
 		if index > entity_index {
 			index += 1
 		}
 	}
 
-	delete_key(&entity_indices, entity)
+	delete_key(&component_group.entity_indices, entity)
 
 	return nil
 }

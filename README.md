@@ -16,10 +16,10 @@ ecs.run(&world)
 // ...
 
 // Spawning an entity
-entity := ecs.spawn(&world.next_entity)
+entity := ecs.spawn(&world)
 
 // Despawning an entity
-ecs.despawn(&world.components, entity)
+ecs.despawn(&world, entity)
 ```
 
 ## Component
@@ -29,10 +29,10 @@ Position :: struct { x, y: int }
 // ...
 
 // Adding a component
-ecs.add_component(&world.components, entity, Position { 10, 10 })
+ecs.add_component(&world, entity, Position { 10, 10 })
 
 // Querying components
-positions := ecs.query_components(world.components, Position)
+positions := ecs.query_components(world, Position)
 
 for position in positions {
 	// ...
@@ -40,12 +40,12 @@ for position in positions {
 
 delete(positions)
 
-if position, ok := ecs.query_component(world.components, entity, Position).?; ok {
+if position, ok := ecs.query_component(world, entity, Position).?; ok {
 	// ...
 }
 
 // Removing a component
-ecs.remove_component(&world.components, entity, Position)
+ecs.remove_component(&world, entity, Position)
 ```
 
 ## System
@@ -61,12 +61,12 @@ spam_system :: proc(world: ^ecs.World) {
 // ...
 
 // Adding a system
-ecs.add_system(&world.startup_systems, hello_system)
-ecs.add_system(&world.systems, spam_system)
+ecs.add_startup_system(&world, hello_system)
+ecs.add_system(&world, spam_system)
 
 // Removing a system
-ecs.remove_system(&world.startup_systems, hello_system)
-ecs.remove_system(&world.systems, spam_system)
+ecs.remove_startup_system(&world, hello_system)
+ecs.remove_system(&world, spam_system)
 ```
 
 ## Resource
@@ -76,13 +76,13 @@ My_Res :: struct { }
 // ...
 
 // Adding a resource
-ecs.add_resource(&world.resources, My_Res { })
+ecs.add_resource(&world, My_Res { })
 
 // Querying resources
-if resource, ok := ecs.query_resource(world.resources, My_Res); ok {
+if resource, ok := ecs.query_resource(world, My_Res); ok {
 	// ...
 }
 
 // Removing a resource
-ecs.remove_resource(&world.resources, My_Res)
+ecs.remove_resource(&world, My_Res)
 ```
