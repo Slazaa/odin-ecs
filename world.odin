@@ -90,11 +90,11 @@ remove_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Erro
 	return remove_from_component_group((^Component_Group(Comp_T))(world.components[Comp_T]), entity)
 }
 
-query_components :: proc(world: World, $Comp_T: typeid) -> []Comp_T {
+query_components :: proc(world: ^World, $Comp_T: typeid) -> []Comp_T {
 	return (^Component_Group(Comp_T))(world.components[Comp_T]).components[:]
 }
 
-query_component :: proc(world: World, entity: Entity, $Comp_T: typeid) -> Maybe(Comp_T) {
+query_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Maybe(Comp_T) {
 	component_group := (^Component_Group(Comp_T))(world.components[Comp_T]);	
 
 	if !(entity in component_group.entity_indices) {
@@ -132,7 +132,7 @@ remove_resource :: proc(world: ^World, $Res_T: typeid) {
 	delete_key(&world.resources, Res_T)
 }
 
-query_resource :: proc(world: World, $Res_T: typeid) -> Maybe(Res_T) {
+query_resource :: proc(world: ^World, $Res_T: typeid) -> Maybe(Res_T) {
 	resource, ok := world.resources[Res_T]
 	return (^Res_T)(resource)^ if ok else nil
 }
