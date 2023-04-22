@@ -25,10 +25,6 @@ init :: proc() -> World {
 }
 
 deinit :: proc(world: ^World) {
-	for _, resource in world.resources {
-		free(resource)
-	}
-
 	delete(world.systems)
 	
 	if world.startup_systems != nil {
