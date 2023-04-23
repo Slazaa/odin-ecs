@@ -44,6 +44,18 @@ if position, ok := ecs.get_component(&world, entity, Position).?; ok {
 	// ...
 }
 
+// Querying components
+query := query_component(&world, Position, Velocity)
+defer deinit_query(&query)
+
+for query_next(&query) {
+	entity := get_entity_from_query(&query)
+	position := get_component_from_query(&query, Position)
+	velocity := get_component_from_query(&query, Velocity)
+
+	// ...
+}
+
 // Removing a component
 ecs.remove_component(&world, entity, Position)
 ```
