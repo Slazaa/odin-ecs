@@ -17,7 +17,7 @@ World :: struct {
 
 // World
 init :: proc() -> World {
-	return World {
+	return {
 		components = make(map[typeid]rawptr),
 		startup_systems = make(map[System]struct{}),
 		systems = make(map[System]struct{}),
@@ -70,8 +70,29 @@ despawn :: proc(world: ^World, entity: Entity) {
 }
 
 // Component
+@private
+register_component :: proc(world: ^World, $Comp_T: typeid) {
+	if Comp_T in world.components {
+		return
+	}
+
+	world.components[Comp_T] = new(Component_Group(Comp_T))
+	
+	component_group := cast(^Component_Group(Comp_T))world.components[Comp_T]
+
+	component_group^ = {
+		components = make([dynamic]Comp_T),
+		entity_indices = make(map[Entity]int)
+	}
+}
+
+@private
+has_component_by_typeid :: proc(world: ^World, entity: Entity, component_type: typeid) -> bool {
+	return component_group_has(cast(^Component_Group(struct{}))world.components[component_type], entity)
+}
+
 has_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> bool {
-	component_group_has(cast(^Component_Group(Comp_T))world.components[Comp_T], entity)
+	return component_group_has(cast(^Component_Group(Comp_T))world.components[Comp_T], entity)
 }
 
 add_component :: proc(world: ^World, entity: Entity, component: $Comp_T) -> Error {
@@ -83,7 +104,6 @@ remove_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Erro
 	return remove_from_component_group((^Component_Group(Comp_T))(world.components[Comp_T]), entity)
 }
 
-// TODO: Replace get_components with a query procedure
 get_components :: proc(world: ^World, $Comp_T: typeid) -> []Comp_T {
 	return (^Component_Group(Comp_T))(world.components[Comp_T]).components[:]
 }
@@ -96,6 +116,47 @@ get_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Maybe(C
 	}
 
 	return component_group.components[component_group.entity_indices[entity]]
+}
+
+query_components :: proc(world: ^World, component_types: ..typeid) -> (query: Query) {
+	min_len_component_group_typeid: typeid
+	min_len_component_group_len := -1
+
+	query = Query {
+		components = &world.components,
+		entities = make([dynamic]Entity),
+		component_types = make([dynamic]typeid),
+		current_index = -1
+	}
+
+	for type in component_types {
+		component_group := (^Component_Group(struct{}))(world.components[type])
+
+		if min_len_component_group_typeid == nil || len(component_group.components) < min_len_component_group_len {
+			min_len_component_group_typeid = type 
+			min_len_component_group_len = len(component_group.components)
+		}
+
+		append(&query.component_types, type)
+	}
+
+	min_len_component_group := (^Component_Group(struct{}))(world.components[min_len_component_group_typeid])
+
+	entity_loop: for entity, _ in min_len_component_group.entity_indices {
+		for	type in component_types {
+			if type == min_len_component_group_typeid {
+				continue
+			}
+
+			if !(entity in (^Component_Group(struct{}))(world.components[type]).entity_indices) {
+				continue entity_loop
+			}
+		}
+
+		append(&query.entities, entity)
+	}
+
+	return
 }
 
 // System

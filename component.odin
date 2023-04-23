@@ -7,22 +7,6 @@ Component_Group :: struct($Comp_T: typeid) {
 	entity_indices: map[Entity]int
 }
 
-@private
-register_component :: proc(world: ^World, $Comp_T: typeid) {
-	if Comp_T in world.components {
-		return
-	}
-
-	world.components[Comp_T] = new(Component_Group(Comp_T))
-	
-	component_group := cast(^Component_Group(Comp_T))world.components[Comp_T]
-
-	component_group^ = {
-		components = make([dynamic]Comp_T),
-		entity_indices = make(map[Entity]int)
-	}
-}
-
 @private 
 component_group_has :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> bool {
 	return entity in component_group.entity_indices
