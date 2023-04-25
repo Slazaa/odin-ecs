@@ -111,9 +111,11 @@ get_components :: proc(world: ^World, $Comp_T: typeid) -> []Comp_T {
 get_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Maybe(Comp_T) {
 	component_group := (^Component_Group(Comp_T))(world.components[Comp_T]);	
 
-	return component_group.components[component_group.entity_indices[entity]]
-		if entity in component_group.entity_indices
-		else nil
+	if !(entity in component_group.entity_indices) {
+		return nil
+	}
+
+	return entity in component_group.entity_indices
 }
 
 query_components :: proc(world: ^World, component_types: ..typeid) -> (query: Query) {
