@@ -118,7 +118,7 @@ get_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Maybe(C
 	return entity in component_group.entity_indices
 }
 
-query_components :: proc(world: ^World, component_types: ..typeid) -> (query: Query) {
+query_components_by_slice :: proc(world: ^World, component_types: []typeid) -> (query: Query) {
 	min_len_component_group_typeid: typeid
 	min_len_component_group_len := -1
 
@@ -157,6 +157,10 @@ query_components :: proc(world: ^World, component_types: ..typeid) -> (query: Qu
 	}
 
 	return
+}
+
+query_components :: proc(world: ^World, component_types: ..typeid) -> Query {
+	return query_components_by_slice(world, component_types)
 }
 
 // System
