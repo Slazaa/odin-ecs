@@ -16,7 +16,7 @@ World :: struct {
 	components: map[typeid]rawptr,
 	startup_systems: map[System]struct{},
 	systems: map[System]struct{},
-	deinit_systems: map[System]struct{},
+	ending_systems: map[System]struct{},
 	resources: map[typeid]rawptr,
 	next_entity: Entity
 }
@@ -198,12 +198,12 @@ add_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 	return nil
 }
 
-add_deinit_system :: proc(world: ^World, system: System) -> Maybe(Error) {
+add_ending_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 	if system in world.deinit_systems {
 		return .SYSTEM_ALREADY_ADDED
 	}
 
-	world.deinit_systems[system] = { }
+	world.ending_systems[system] = { }
 
 	return nil
 }
@@ -229,11 +229,11 @@ remove_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 }
 
 remove_deinit_system :: proc(world: ^World, system: System) -> Maybe(Error) {
-	if !(system in world.deinit_systems) {
+	if !(system in world.ending_systems) {
 		return .UNKNOWN_SYSTEM
 	}
 
-	delete_key(&world.deinit_systems, system)
+	delete_key(&world.ending_systems, system)
 
 	return nil
 }
