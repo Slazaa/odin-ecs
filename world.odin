@@ -1,5 +1,7 @@
 package ecs
 
+import "core:fmt"
+
 Error :: enum {
 	ENTITY_ALREADY_HAS_COMPONENT,
 	ENTITY_DOES_NOT_HAVE_COMPONENT,
@@ -60,18 +62,18 @@ deinit :: proc(world: ^World) {
 }
 
 run :: proc(world: ^World) {
-	if world.startup_systems != nil {
-		for system in world.startup_systems {
-			system(world)
-		}
-
-		delete(world.startup_systems)
-		world.startup_systems = nil
-	}
-
 	for system in world.systems {
 		system(world)
 	}
+}
+
+run_startup :: proc(world: ^World) {
+	for system in world.startup_systems {
+		system(world)
+	}
+
+	delete(world.startup_systems)
+	world.startup_systems = nil
 }
 
 // Entity
