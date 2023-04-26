@@ -245,7 +245,7 @@ has_resource :: proc(world: ^World, $Comp_T: typeid) -> bool {
 	return Comp_T in world.resources
 }
 
-add_resource :: proc(world: ^World, resource: $Res_T) -> Maybe(Error) {
+insert_resource :: proc(world: ^World, resource: $Res_T) -> Maybe(Error) {
 	if Res_T in world.resources {
 		return .RESOURCE_ALREADY_EXISTS
 	}
