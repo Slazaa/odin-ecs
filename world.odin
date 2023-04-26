@@ -3,12 +3,12 @@ package ecs
 import "core:fmt"
 
 Error :: enum {
-	ENTITY_ALREADY_HAS_COMPONENT,
-	ENTITY_DOES_NOT_HAVE_COMPONENT,
-	RESOURCE_ALREADY_EXISTS,
-	RESOURCE_DOES_NOT_EXIST,
-	SYSTEM_ALREADY_ADDED,
-	UNKNOWN_SYSTEM
+	Entity_Already_Has_Component,
+	Entity_Does_Not_Have_Component,
+	Resource_Already_Exists,
+	Resource_Does_Not_Exit,
+	System_Already_Added,
+	Unknown_System
 }
 
 System :: proc(world: ^World)
@@ -182,7 +182,7 @@ query_components :: proc(world: ^World, component_types: ..typeid) -> Query {
 // System
 add_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 	if system in world.systems {
-		return .SYSTEM_ALREADY_ADDED
+		return .System_Already_Added
 	}
 
 	world.systems[system] = { }
@@ -192,7 +192,7 @@ add_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 
 add_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 	if system in world.startup_systems {
-		return .SYSTEM_ALREADY_ADDED
+		return .System_Already_Added
 	}
 
 	world.startup_systems[system] = { }
@@ -202,7 +202,7 @@ add_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 
 add_ending_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 	if system in world.ending_systems {
-		return .SYSTEM_ALREADY_ADDED
+		return .System_Already_Added
 	}
 
 	world.ending_systems[system] = { }
@@ -212,7 +212,7 @@ add_ending_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 
 remove_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 	if !(system in world.systems) {
-		return .UNKNOWN_SYSTEM
+		return .Unknown_System
 	}
 
 	delete_key(&world.systems, system)
@@ -222,7 +222,7 @@ remove_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 
 remove_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 	if !(system in world.startup_systems) {
-		return .UNKNOWN_SYSTEM
+		return .Unknown_System
 	}
 
 	delete_key(&world.startup_systems, system)
@@ -230,9 +230,9 @@ remove_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 	return nil
 }
 
-remove_deinit_system :: proc(world: ^World, system: System) -> Maybe(Error) {
+remove_ending_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 	if !(system in world.ending_systems) {
-		return .UNKNOWN_SYSTEM
+		return .Unknown_System
 	}
 
 	delete_key(&world.ending_systems, system)
@@ -247,7 +247,7 @@ has_resource :: proc(world: ^World, $Comp_T: typeid) -> bool {
 
 insert_resource :: proc(world: ^World, resource: $Res_T) -> Maybe(Error) {
 	if Res_T in world.resources {
-		return .RESOURCE_ALREADY_EXISTS
+		return .Resource_Already_Exists
 	}
 
 	new_resource := new(Res_T)
