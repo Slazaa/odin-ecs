@@ -13,7 +13,7 @@ component_group_has :: proc(component_group: ^Component_Group($Comp_T), entity: 
 }
 
 @private 
-add_to_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity, component: Comp_T) -> Error {
+add_to_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity, component: Comp_T) -> Maybe(Error) {
 	if component_group_has(component_group, entity) {
 		return .ENTITY_ALREADY_HAS_COMPONENT
 	}
@@ -25,7 +25,7 @@ add_to_component_group :: proc(component_group: ^Component_Group($Comp_T), entit
 }
 
 @private
-remove_from_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> Error {
+remove_from_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> Maybe(Error) {
 	if !component_group_has(component_group, entity) {
 		return .ENTITY_DOES_NOT_HAVE_COMPONENT
 	}
@@ -43,4 +43,13 @@ remove_from_component_group :: proc(component_group: ^Component_Group($Comp_T), 
 	delete_key(&component_group.entity_indices, entity)
 
 	return nil
+}
+
+@private
+get_component_from_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> Maybe(^Comp_T) {
+	if !(entity in component_group.entity_indices) {
+		return nil
+	}
+
+	return &component_group.components[entity]
 }

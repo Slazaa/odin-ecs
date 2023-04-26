@@ -80,3 +80,21 @@ ecs.add_system(&world, spam_system)
 ecs.remove_startup_system(&world, hello_system)
 ecs.remove_system(&world, spam_system)
 ```
+
+## Resource
+```odin
+My_Res :: distinct int
+
+// ...
+
+// Adding a resource
+add_resource(&world, My_Res(10))
+
+// Getting a resource
+if res, ok := get_resource(&world, My_Res); ok {
+	// ...
+}
+
+// Remove a resource
+remove_resource(&world, My_Res)
+```

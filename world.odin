@@ -2,7 +2,9 @@ package ecs
 
 Error :: enum {
 	ENTITY_ALREADY_HAS_COMPONENT,
-	ENTITY_DOES_NOT_HAVE_COMPONENT	
+	ENTITY_DOES_NOT_HAVE_COMPONENT,
+	RESOURCE_ALREADY_EXISTS,
+	RESOURCE_DOES_NOT_EXIST
 }
 
 System :: proc(world: ^World)
@@ -12,6 +14,7 @@ World :: struct {
 	components: map[typeid]rawptr,
 	startup_systems: map[System]struct{},
 	systems: map[System]struct{},
+	resources: map[typeid]rawptr,
 	next_entity: Entity
 }
 
@@ -21,6 +24,7 @@ init :: proc() -> World {
 		components = make(map[typeid]rawptr),
 		startup_systems = make(map[System]struct{}),
 		systems = make(map[System]struct{}),
+		resources = make(map[typeid]rawptr)
 	}
 }
 
@@ -30,6 +34,12 @@ deinit :: proc(world: ^World) {
 	if world.startup_systems != nil {
 		delete(world.startup_systems)
 	}
+
+	for _, resource in world.resources {
+		free(resource)
+	}
+
+	delete(world.resources)	
 
 	for _, component_group in world.components {
 		delete((^Component_Group(struct{}))(component_group).components)
@@ -95,12 +105,12 @@ has_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> bool {
 	return component_group_has(cast(^Component_Group(Comp_T))world.components[Comp_T], entity)
 }
 
-add_component :: proc(world: ^World, entity: Entity, component: $Comp_T) -> Error {
+add_component :: proc(world: ^World, entity: Entity, component: $Comp_T) -> Maybe(Error) {
 	register_component(world, Comp_T)
 	return add_to_component_group(cast(^Component_Group(Comp_T))world.components[Comp_T], entity, component)
 }
 
-remove_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Error {
+remove_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Maybe(Error) {
 	return remove_from_component_group((^Component_Group(Comp_T))(world.components[Comp_T]), entity)
 }
 
@@ -108,14 +118,9 @@ get_components :: proc(world: ^World, $Comp_T: typeid) -> []Comp_T {
 	return (^Component_Group(Comp_T))(world.components[Comp_T]).components[:]
 }
 
-get_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Maybe(Comp_T) {
+get_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Maybe(^Comp_T) {
 	component_group := (^Component_Group(Comp_T))(world.components[Comp_T]);	
-
-	if !(entity in component_group.entity_indices) {
-		return nil
-	}
-
-	return entity in component_group.entity_indices
+	return get_component_from_component_group(component_group, entity)
 }
 
 query_components_by_slice :: proc(world: ^World, component_types: []typeid) -> (query: Query) {
@@ -178,4 +183,41 @@ remove_system :: proc(world: ^World, system: System) {
 
 remove_startup_system :: proc(world: ^World, system: System) {
 	delete_key(&world.startup_systems, system)
+}
+
+// Resource
+has_resource :: proc(world: ^World, $Comp_T: typeid) -> bool {
+	return Comp_T in world.resources
+}
+
+add_resource :: proc(world: ^World, resource: $Res_T) -> Maybe(Error) {
+	if Res_T in world.resources {
+		return .RESOURCE_ALREADY_EXISTS
+	}
+
+	new_resource := new(Res_T)
+	new_resource^ = resource
+
+
+	world.resources[Res_T] = new_resource
+
+	return nil
+}
+
+remove_resource :: proc(world: ^World, $Res_T: typeid) -> Maybe(Error) {
+	if !(Res_T in world.resources) {
+		return .RESOURCE_DOES_NOT_EXIST
+	}
+
+	delete_key(&world.resources, Res_T)
+
+	return nil
+}
+
+get_resource :: proc(world: ^World, $Res_T: typeid) -> Maybe(^Res_T) {
+	if !(Res_T in world.resources) {
+		return nil
+	}
+
+	return cast(^Res_T)world.resources[Res_T]
 }
