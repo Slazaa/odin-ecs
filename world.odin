@@ -34,11 +34,11 @@ init :: proc() -> World {
 deinit :: proc(world: ^World) {
 	delete(world.systems)
 
-	for system in world.deinit_systems {
+	for system in world.ending_systems {
 		system(world)
 	}
 
-	delete(world.deinit_systems)
+	delete(world.ending_systems)
 	
 	if world.startup_systems != nil {
 		delete(world.startup_systems)
