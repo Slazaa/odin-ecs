@@ -199,7 +199,7 @@ add_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 }
 
 add_ending_system :: proc(world: ^World, system: System) -> Maybe(Error) {
-	if system in world.deinit_systems {
+	if system in world.ending_systems {
 		return .SYSTEM_ALREADY_ADDED
 	}
 
