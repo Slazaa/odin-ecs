@@ -4,7 +4,9 @@ Error :: enum {
 	ENTITY_ALREADY_HAS_COMPONENT,
 	ENTITY_DOES_NOT_HAVE_COMPONENT,
 	RESOURCE_ALREADY_EXISTS,
-	RESOURCE_DOES_NOT_EXIST
+	RESOURCE_DOES_NOT_EXIST,
+	SYSTEM_ALREADY_ADDED,
+	UNKNOWN_SYSTEM
 }
 
 System :: proc(world: ^World)
@@ -14,6 +16,7 @@ World :: struct {
 	components: map[typeid]rawptr,
 	startup_systems: map[System]struct{},
 	systems: map[System]struct{},
+	deinit_systems: map[System]struct{},
 	resources: map[typeid]rawptr,
 	next_entity: Entity
 }
@@ -30,6 +33,12 @@ init :: proc() -> World {
 
 deinit :: proc(world: ^World) {
 	delete(world.systems)
+
+	for system in world.deinit_systems {
+		system(world)
+	}
+
+	delete(world.deinit_systems)
 	
 	if world.startup_systems != nil {
 		delete(world.startup_systems)
@@ -169,20 +178,64 @@ query_components :: proc(world: ^World, component_types: ..typeid) -> Query {
 }
 
 // System
-add_system :: proc(world: ^World, system: System) {
+add_system :: proc(world: ^World, system: System) -> Maybe(Error) {
+	if system in world.systems {
+		return .SYSTEM_ALREADY_ADDED
+	}
+
 	world.systems[system] = { }
+
+	return nil
 }
 
-add_startup_system :: proc(world: ^World, system: System) {
+add_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
+	if system in world.startup_systems {
+		return .SYSTEM_ALREADY_ADDED
+	}
+
 	world.startup_systems[system] = { }
+
+	return nil
 }
 
-remove_system :: proc(world: ^World, system: System) {
+add_deinit_system :: proc(world: ^World, system: System) -> Maybe(Error) {
+	if system in world.deinit_systems {
+		return .SYSTEM_ALREADY_ADDED
+	}
+
+	world.deinit_systems[system] = { }
+
+	return nil
+}
+
+remove_system :: proc(world: ^World, system: System) -> Maybe(Error) {
+	if !(system in world.systems) {
+		return .UNKNOWN_SYSTEM
+	}
+
 	delete_key(&world.systems, system)
+
+	return nil
 }
 
-remove_startup_system :: proc(world: ^World, system: System) {
+remove_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
+	if !(system in world.startup_systems) {
+		return .UNKNOWN_SYSTEM
+	}
+
 	delete_key(&world.startup_systems, system)
+
+	return nil
+}
+
+remove_deinit_system :: proc(world: ^World, system: System) -> Maybe(Error) {
+	if !(system in world.deinit_systems) {
+		return .UNKNOWN_SYSTEM
+	}
+
+	delete_key(&world.deinit_systems, system)
+
+	return nil
 }
 
 // Resource
