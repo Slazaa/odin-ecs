@@ -46,7 +46,7 @@ remove_from_component_group :: proc(component_group: ^Component_Group($Comp_T), 
 }
 
 @private
-get_component_from_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> Maybe(^Comp_T) {
+get_from_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> Maybe(^Comp_T) {
 	if !(entity in component_group.entity_indices) {
 		return nil
 	}

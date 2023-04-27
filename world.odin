@@ -11,14 +11,13 @@ Error :: enum {
 	Unknown_System
 }
 
-System :: proc(world: ^World)
 Entity :: distinct uint
 
 World :: struct {
 	components: map[typeid]rawptr,
-	startup_systems: map[System]struct{},
-	systems: map[System]struct{},
-	ending_systems: map[System]struct{},
+	startup_schedule: Maybe(Schedule),
+	schedule: Schedule,
+	ending_schedule: Schedule,
 	resources: map[typeid]rawptr,
 	next_entity: Entity
 }
@@ -27,23 +26,23 @@ World :: struct {
 init :: proc() -> World {
 	return {
 		components = make(map[typeid]rawptr),
-		startup_systems = make(map[System]struct{}),
-		systems = make(map[System]struct{}),
+		startup_schedule = init_schedule(),
+		schedule = init_schedule(),
+		ending_schedule = init_schedule(),
 		resources = make(map[typeid]rawptr)
 	}
 }
 
 deinit :: proc(world: ^World) {
-	delete(world.systems)
-
-	for system in world.ending_systems {
+	for system in get_all_from_schedule(&world.ending_schedule) {
 		system(world)
 	}
 
-	delete(world.ending_systems)
+	deinit_schedule(&world.ending_schedule)
+	deinit_schedule(&world.schedule)
 	
-	if world.startup_systems != nil {
-		delete(world.startup_systems)
+	if world.startup_schedule != nil {
+		deinit_schedule(&world.startup_schedule.?)
 	}
 
 	for _, resource in world.resources {
@@ -62,18 +61,13 @@ deinit :: proc(world: ^World) {
 }
 
 run :: proc(world: ^World) {
-	for system in world.systems {
-		system(world)
-	}
+	run_schedule(&world.schedule, world)
 }
 
 run_startup :: proc(world: ^World) {
-	for system in world.startup_systems {
-		system(world)
-	}
-
-	delete(world.startup_systems)
-	world.startup_systems = nil
+	run_schedule(&world.startup_schedule.?, world)
+	deinit_schedule(&world.startup_schedule.?)
+	world.startup_schedule = nil
 }
 
 // Entity
@@ -181,63 +175,27 @@ query_components :: proc(world: ^World, component_types: ..typeid) -> Query {
 
 // System
 add_system :: proc(world: ^World, system: System) -> Maybe(Error) {
-	if system in world.systems {
-		return .System_Already_Added
-	}
-
-	world.systems[system] = { }
-
-	return nil
+	return add_to_schedule(&world.schedule, system)
 }
 
 add_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
-	if system in world.startup_systems {
-		return .System_Already_Added
-	}
-
-	world.startup_systems[system] = { }
-
-	return nil
+	return add_to_schedule(&world.startup_schedule.?, system)
 }
 
 add_ending_system :: proc(world: ^World, system: System) -> Maybe(Error) {
-	if system in world.ending_systems {
-		return .System_Already_Added
-	}
-
-	world.ending_systems[system] = { }
-
-	return nil
+	return add_to_schedule(&world.ending_schedule, system)
 }
 
 remove_system :: proc(world: ^World, system: System) -> Maybe(Error) {
-	if !(system in world.systems) {
-		return .Unknown_System
-	}
-
-	delete_key(&world.systems, system)
-
-	return nil
+	return remove_from_schedule(&world.schedule, system)
 }
 
 remove_startup_system :: proc(world: ^World, system: System) -> Maybe(Error) {
-	if !(system in world.startup_systems) {
-		return .Unknown_System
-	}
-
-	delete_key(&world.startup_systems, system)
-
-	return nil
+	return remove_from_schedule(&world.startup_schedule.?, system)
 }
 
 remove_ending_system :: proc(world: ^World, system: System) -> Maybe(Error) {
-	if !(system in world.ending_systems) {
-		return .Unknown_System
-	}
-
-	delete_key(&world.ending_systems, system)
-
-	return nil
+	return remove_from_schedule(&world.ending_schedule, system)
 }
 
 // Resource
@@ -261,7 +219,7 @@ insert_resource :: proc(world: ^World, resource: $Res_T) -> Maybe(Error) {
 
 remove_resource :: proc(world: ^World, $Res_T: typeid) -> Maybe(Error) {
 	if !(Res_T in world.resources) {
-		return .RESOURCE_DOES_NOT_EXIST
+		return .Resource_Does_Not_Exit
 	}
 
 	delete_key(&world.resources, Res_T)
