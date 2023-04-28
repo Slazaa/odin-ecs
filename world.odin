@@ -14,7 +14,7 @@ Error :: enum {
 // An `Entity` represents an object in a `World`.
 Entity :: distinct uint
 
-// A `System` is a procedure that represents a logic of your `World`.
+// A `System` is a procedure that represents a logic of a `World`.
 System :: proc(world: ^World)
 
 // A `Resource` is a piece of data that can be accessed at any time.
