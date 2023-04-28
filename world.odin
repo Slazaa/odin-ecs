@@ -23,7 +23,16 @@ World :: struct {
 }
 
 // World
-init :: proc() -> World {
+
+/// Initialize a new `World`.
+/// 
+/// # Examples
+///
+/// ```odin
+/// world := init()
+/// defer deinit()
+/// ```
+init_world :: proc() -> World {
 	return {
 		components = make(map[typeid]rawptr),
 		startup_schedule = init_schedule(),
@@ -33,7 +42,8 @@ init :: proc() -> World {
 	}
 }
 
-deinit :: proc(world: ^World) {
+/// Deinitialize the ECS
+deinit_world :: proc(world: ^World) {
 	for system in get_all_from_schedule(&world.ending_schedule) {
 		system(world)
 	}
@@ -60,25 +70,25 @@ deinit :: proc(world: ^World) {
 	delete(world.components)
 }
 
-run :: proc(world: ^World) {
+run_world :: proc(world: ^World) {
 	run_schedule(&world.schedule, world)
 }
 
-run_startup :: proc(world: ^World) {
+run_world_startup :: proc(world: ^World) {
 	run_schedule(&world.startup_schedule.?, world)
 	deinit_schedule(&world.startup_schedule.?)
 	world.startup_schedule = nil
 }
 
 // Entity
-spawn :: proc(world: ^World) -> (entity: Entity) {
+spawn_entity :: proc(world: ^World) -> (entity: Entity) {
 	entity = world.next_entity
 	world.next_entity += 1
 
 	return
 }
 
-despawn :: proc(world: ^World, entity: Entity) {
+despawn_entity :: proc(world: ^World, entity: Entity) {
 	for _, component_group in world.components {
 		remove_from_component_group(cast(^Component_Group(struct{}))component_group, entity)
 	}
