@@ -2,13 +2,13 @@ A simple Entity Component System written in Odin.
 
 ## World
 ```odin
-world := ecs.init()
-defer ecs.deinit(&world)
+world := ecs.init_world()
+defer ecs.deinit_world(&world)
 
 // ...
 
 // Run a tick
-ecs.run(&world)
+ecs.run_world(&world)
 ```
 
 ## Entity
@@ -16,10 +16,10 @@ ecs.run(&world)
 // ...
 
 // Spawning an entity
-entity := ecs.spawn(&world)
+entity := ecs.spawn_entity(&world)
 
 // Despawning an entity
-ecs.despawn(&world, entity)
+ecs.despawn_entity(&world, entity)
 ```
 
 ## Component
@@ -29,7 +29,7 @@ Position :: struct { x, y: int }
 // ...
 
 // Adding a component
-ecs.add_component(&world, entity, Position { 10, 10 })
+ecs.add_component_to_entity(&world, entity, Position { 10, 10 })
 
 // Querying components
 query := query_components(&world, Position, Velocity)
@@ -44,7 +44,7 @@ for query_next(&query) {
 }
 
 // Removing a component
-ecs.remove_component(&world, entity, Position)
+ecs.remove_component_from_entity(&world, entity, Position)
 ```
 
 ## System
