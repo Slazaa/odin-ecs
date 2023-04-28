@@ -7,6 +7,15 @@ Query :: struct {
 	current_index: int
 }
 
+init_query :: proc(world: ^World) -> Query {
+	return {
+		components = &world.components,
+		entities = make([dynamic]Entity),
+		component_types = make([dynamic]typeid),
+		current_index = -1
+	}
+}
+
 deinit_query :: proc(query: ^Query) {
 	delete(query.component_types)
 	delete(query.entities)

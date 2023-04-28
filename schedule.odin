@@ -1,7 +1,6 @@
 package ecs
 
-System :: proc(world: ^World)
-
+@private
 Schedule :: struct {
 	systems: [dynamic]System,
 	system_indices: map[System]int
