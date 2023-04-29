@@ -57,15 +57,15 @@ init_world :: proc() -> World {
 // ecs.deinit_world(&world)
 // ```
 deinit_world :: proc(world: ^World) {
-	for system in get_all_from_schedule(&world.ending_schedule) {
+	for system in get_all_from_schedule(world.ending_schedule) {
 		system(world)
 	}
 
-	deinit_schedule(&world.ending_schedule)
-	deinit_schedule(&world.schedule)
+	deinit_schedule(world.ending_schedule)
+	deinit_schedule(world.schedule)
 	
 	if world.startup_schedule != nil {
-		deinit_schedule(&world.startup_schedule.?)
+		deinit_schedule(world.startup_schedule.?)
 	}
 
 	for _, resource in world.resources {
@@ -107,7 +107,7 @@ run_world :: proc(world: ^World) {
 		run_world_startup(world)
 	}
 
-	run_schedule(&world.schedule, world)
+	run_schedule(world.schedule, world)
 }
 
 // Runs every startup `System` of a `World` and then remove the startup systems.
@@ -128,8 +128,8 @@ run_world :: proc(world: ^World) {
 // ecs.run_world_startup(&world)
 // ```
 run_world_startup :: proc(world: ^World) {
-	run_schedule(&world.startup_schedule.?, world)
-	deinit_schedule(&world.startup_schedule.?)
+	run_schedule(world.startup_schedule.?, world)
+	deinit_schedule(world.startup_schedule.?)
 	world.startup_schedule = nil
 }
 
@@ -183,11 +183,6 @@ register_component :: proc(world: ^World, $Comp_T: typeid) {
 	}
 }
 
-@private
-has_component_by_typeid :: proc(world: ^World, entity: Entity, component_type: typeid) -> bool {
-	return component_group_has(cast(^Component_Group(struct{}))world.components[component_type], entity)
-}
-
 // Returns `true` if the `Entity` of the `World` has the `Component`.
 //
 // # Examples
@@ -204,7 +199,7 @@ has_component_by_typeid :: proc(world: ^World, entity: Entity, component_type: t
 //
 // assert(ecs.entity_has_component(&world, entity, Position)) 
 // ```
-entity_has_component :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> bool {
+entity_has_component :: proc(world: World, entity: Entity, $Comp_T: typeid) -> bool {
 	return component_group_has(cast(^Component_Group(Comp_T))world.components[Comp_T], entity)
 }
 
@@ -321,8 +316,8 @@ query_components :: proc(world: ^World, component_types: ..typeid) -> Query {
 //
 // assert(ecs.has_system(&world, hello_system))
 // ```
-has_system :: proc(world: ^World, system: System) -> bool {
-	return schedule_has(&world.schedule, system)
+has_system :: proc(world: World, system: System) -> bool {
+	return schedule_has(world.schedule, system)
 }
 
 // Returns `true` if the `World` has the startup `System`.
@@ -341,8 +336,8 @@ has_system :: proc(world: ^World, system: System) -> bool {
 //
 // assert(ecs.has_startup_system(&world, hello_system))
 // ```
-has_startup_system :: proc(world: ^World, system: System) -> bool {
-	return schedule_has(&world.startup_schedule.?, system)
+has_startup_system :: proc(world: World, system: System) -> bool {
+	return schedule_has(world.startup_schedule.?, system)
 }
 
 // Returns `true` if the `World` has the ending `System`.
@@ -361,8 +356,8 @@ has_startup_system :: proc(world: ^World, system: System) -> bool {
 //
 // assert(ecs.has_ending_system(&world, hello_system))
 // ```
-has_ending_system :: proc(world: ^World, system: System) -> bool {
-	return schedule_has(&world.schedule, system)
+has_ending_system :: proc(world: World, system: System) -> bool {
+	return schedule_has(world.schedule, system)
 }
 
 // Adds a `System` to a `World`.
@@ -496,7 +491,7 @@ remove_ending_system :: proc(world: ^World, system: System) -> Maybe(Error) {
 //
 // assert(ecs.has_resource(&world, Res))
 // ```
-has_resource :: proc(world: ^World, $Comp_T: typeid) -> bool {
+has_resource :: proc(world: World, $Comp_T: typeid) -> bool {
 	return Comp_T in world.resources
 }
 
@@ -566,7 +561,7 @@ remove_resource :: proc(world: ^World, $Res_T: typeid) -> Maybe(Error) {
 // ecs.insert_resource(&world, Res(10))
 // res := ecs.get_resource(&world, Res)
 // ```
-get_resource :: proc(world: ^World, $Res_T: typeid) -> Maybe(^Res_T) {
+get_resource :: proc(world: World, $Res_T: typeid) -> Maybe(^Res_T) {
 	if !(Res_T in world.resources) {
 		return nil
 	}

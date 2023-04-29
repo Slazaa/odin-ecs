@@ -9,13 +9,13 @@ Component_Group :: struct($Comp_T: typeid) {
 }
 
 @private 
-component_group_has :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> bool {
+component_group_has :: proc(component_group: Component_Group($Comp_T), entity: Entity) -> bool {
 	return entity in component_group.entity_indices
 }
 
 @private 
 add_to_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity, component: Comp_T) -> Maybe(Error) {
-	if component_group_has(component_group, entity) {
+	if component_group_has(component_group^, entity) {
 		return .Entity_Already_Has_Component
 	}
 
@@ -27,7 +27,7 @@ add_to_component_group :: proc(component_group: ^Component_Group($Comp_T), entit
 
 @private
 remove_from_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> Maybe(Error) {
-	if !component_group_has(component_group, entity) {
+	if !component_group_has(component_group^, entity) {
 		return .Entity_Does_Not_Have_Component
 	}
 
@@ -47,7 +47,7 @@ remove_from_component_group :: proc(component_group: ^Component_Group($Comp_T), 
 }
 
 @private
-get_from_component_group :: proc(component_group: ^Component_Group($Comp_T), entity: Entity) -> Maybe(^Comp_T) {
+get_from_component_group :: proc(component_group: Component_Group($Comp_T), entity: Entity) -> Maybe(^Comp_T) {
 	if !(entity in component_group.entity_indices) {
 		return nil
 	}

@@ -33,7 +33,7 @@ init_query :: proc(world: ^World) -> Query {
 //
 // query := ecs.query_components(&world, Position)
 // ecs.deinit_query(&query)
-deinit_query :: proc(query: ^Query) {
+deinit_query :: proc(query: Query) {
 	delete(query.component_types)
 	delete(query.entities)
 }
@@ -77,7 +77,7 @@ query_next :: proc(query: ^Query) -> bool {
 //
 // ecs.query_next(&query)
 // queried_entity := ecs.get_entity_from_query(&query)
-get_entity_from_query :: proc(query: ^Query) -> Entity {
+get_entity_from_query :: proc(query: Query) -> Entity {
 	return query.entities[query.current_index]
 }
 
@@ -98,7 +98,7 @@ get_entity_from_query :: proc(query: ^Query) -> Entity {
 //
 // ecs.query_next(&query)
 // position := ecs.get_component_from_query(&query, Position)
-get_component_from_query :: proc(query: ^Query, $Comp_T: typeid) -> Comp_T {
+get_component_from_query :: proc(query: Query, $Comp_T: typeid) -> Comp_T {
 	component_group := (^Component_Group(Comp_T))(query.components[Comp_T]);	
 	entity := query.entities[query.current_index]
 

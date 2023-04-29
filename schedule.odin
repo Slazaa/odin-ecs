@@ -15,19 +15,19 @@ init_schedule :: proc() -> Schedule {
 }
 
 @private
-deinit_schedule :: proc(schedule: ^Schedule) {
+deinit_schedule :: proc(schedule: Schedule) {
 	delete(schedule.system_indices)
 	delete(schedule.systems)
 }
 
 @private
-schedule_has :: proc(schedule: ^Schedule, system: System) -> bool {
+schedule_has :: proc(schedule: Schedule, system: System) -> bool {
 	return system in schedule.system_indices
 }
 
 @private
 add_to_schedule :: proc(schedule: ^Schedule, system: System) -> Maybe(Error) {
-	if schedule_has(schedule, system) {
+	if schedule_has(schedule^, system) {
 		return .System_Already_Added
 	}
 
@@ -39,12 +39,11 @@ add_to_schedule :: proc(schedule: ^Schedule, system: System) -> Maybe(Error) {
 
 @private
 remove_from_schedule :: proc(schedule: ^Schedule, system: System) -> Maybe(Error) {
-	if !schedule_has(schedule, system) {
+	if !schedule_has(schedule^, system) {
 		return .Unknown_System
 	}
 
 	system_index := schedule.system_indices[system]
-
 	ordered_remove(&schedule.systems, system_index)
 
 	for _, index in &schedule.system_indices {
@@ -59,13 +58,13 @@ remove_from_schedule :: proc(schedule: ^Schedule, system: System) -> Maybe(Error
 }
 
 @private
-run_schedule :: proc(schedule: ^Schedule, world: ^World) {
+run_schedule :: proc(schedule: Schedule, world: ^World) {
 	for system in schedule.systems {
 		system(world)
 	}
 }
 
 @private
-get_all_from_schedule :: proc(schedule: ^Schedule) -> []System {
+get_all_from_schedule :: proc(schedule: Schedule) -> []System {
 	return schedule.systems[:]
 }
