@@ -167,9 +167,28 @@ despawn_entity :: proc(world: ^World, entity: Entity) {
 	}
 }
 
+// Returns `true` if the `Component` type is registered.
+//
+// # Examples
+//
+// ```
+// Position :: sturct { x, y: int }
+//
+// world := ecs.init_world()
+// defer ecs.deinit_world(&world)
+//
+// entity := ecs.spawn_entity(&world)
+// ecs.add_component_to_entity(&world, entity, Position)
+//
+// assert(is_component_registered(world, Position))
+// ```
+is_component_registered :: proc(world: World, $Comp_T: typeid) -> bool {
+	return Comp_T in world.components	
+}
+
 @private
 register_component :: proc(world: ^World, $Comp_T: typeid) {
-	if Comp_T in world.components {
+	if is_component_registered(world^, Comp_T) {
 		return
 	}
 
@@ -197,7 +216,7 @@ register_component :: proc(world: ^World, $Comp_T: typeid) {
 //
 // ecs.add_component_to_entity(&world, entity, Position { 10, 10 })
 //
-// assert(ecs.entity_has_component(&world, entity, Position)) 
+// assert(ecs.entity_has_component(world, entity, Position)) 
 // ```
 entity_has_component :: proc(world: World, entity: Entity, $Comp_T: typeid) -> bool {
 	return component_group_has(cast(^Component_Group(Comp_T))world.components[Comp_T], entity)
@@ -239,6 +258,29 @@ add_component_to_entity :: proc(world: ^World, entity: Entity, component: $Comp_
 // ```
 remove_component_from_entity :: proc(world: ^World, entity: Entity, $Comp_T: typeid) -> Maybe(Error) {
 	return remove_from_component_group((^Component_Group(Comp_T))(world.components[Comp_T]), entity)
+}
+
+// Returns the `Component`'s of the `Component` type.
+//
+// # Examples
+//
+// ```
+// Position :: struct { x, y: int }
+//
+// world := ecs.init_world()
+// defer ecs.deinit_world(&world)
+//
+// entity := ecs.spawn_entity(&world)
+// ecs.add_component_to_entity(&world, entity, Position { 10, 10 })
+//
+// positions := ecs.get_components(world, Position)
+// ```
+get_components :: proc(world: World, $Comp_T: typeid) -> Maybe([]Comp_T) {
+	if !is_component_registered(world, Comp_T) {
+		return nil
+	}
+
+	return (^Component_Group(Comp_T))(world.components[Comp_T]).components[:]
 }
 
 @private
