@@ -3,12 +3,12 @@ package ecs
 import "core:fmt"
 
 Error :: enum {
-	Entity_Already_Has_Component,
-	Entity_Does_Not_Have_Component,
-	Resource_Already_Exists,
-	Resource_Does_Not_Exit,
-	System_Already_Added,
-	Unknown_System
+	ENTITY_ALREADY_HAS_COMPONENT,
+	ENTITY_DOES_NOT_HAVE_COMPONENT,
+	RESOURCE_ALREADY_EXISTS,
+	RESOURCE_DOES_NOT_EXIST
+	SYSTEM_ALREADY_ADDED,
+	UNKNOWN_SYSTEM
 }
 
 // An `Entity` represents an object in a `World`.
@@ -283,8 +283,25 @@ get_components :: proc(world: World, $Comp_T: typeid) -> Maybe([]Comp_T) {
 	return (^Component_Group(Comp_T))(world.components[Comp_T]).components[:]
 }
 
-@private
-query_components_by_slice :: proc(world: ^World, component_types: []typeid) -> (query: Query) {
+// Queries the `Component`'s of a `World`.
+//
+// # Examples
+//
+// ```
+// Position :: struct { x, y: int }
+// Velocity :: struct { x, y: int }
+//
+// world := ecs.init_world()
+// defer ecs.deinit_world(&world)
+//
+// entity := ecs.spawn_entity(&world)
+//
+// add_component_to_entity(&world, entity, Position { 10, 10 })
+// add_component_to_entity(&world, entity, Velocity { 10, 10 })
+//
+// query := query_components(&world, Position, Velocity)
+// ```
+query_components :: proc(world: ^World, component_types: ..typeid) -> (query: Query) {
 	min_len_component_group_typeid: typeid
 	min_len_component_group_len := -1
 
@@ -318,28 +335,6 @@ query_components_by_slice :: proc(world: ^World, component_types: []typeid) -> (
 	}
 
 	return
-}
-
-// Queries the `Component`'s of a `World`.
-//
-// # Examples
-//
-// ```
-// Position :: struct { x, y: int }
-// Velocity :: struct { x, y: int }
-//
-// world := ecs.init_world()
-// defer ecs.deinit_world(&world)
-//
-// entity := ecs.spawn_entity(&world)
-//
-// add_component_to_entity(&world, entity, Position { 10, 10 })
-// add_component_to_entity(&world, entity, Velocity { 10, 10 })
-//
-// query := query_components(&world, Position, Velocity)
-// ```
-query_components :: proc(world: ^World, component_types: ..typeid) -> Query {
-	return query_components_by_slice(world, component_types)
 }
 
 // Returns `true` if the `World` has the `System`.
@@ -553,7 +548,7 @@ has_resource :: proc(world: World, $Comp_T: typeid) -> bool {
 // ```
 insert_resource :: proc(world: ^World, resource: $Res_T) -> Maybe(Error) {
 	if Res_T in world.resources {
-		return .Resource_Already_Exists
+		return .RESOURCE_ALREADY_EXISTS
 	}
 
 	new_resource := new(Res_T)
@@ -582,7 +577,7 @@ insert_resource :: proc(world: ^World, resource: $Res_T) -> Maybe(Error) {
 // ```
 remove_resource :: proc(world: ^World, $Res_T: typeid) -> Maybe(Error) {
 	if !(Res_T in world.resources) {
-		return .Resource_Does_Not_Exit
+		return .RESOURCE_DOES_NOT_EXIST
 	}
 
 	delete_key(&world.resources, Res_T)
