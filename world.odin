@@ -196,7 +196,7 @@ register_component :: proc(world: ^World, $Comp_T: typeid) {
 	
 	component_group := cast(^Component_Group(Comp_T))world.components[Comp_T]
 
-	component_group^ = {
+	component_group^ = Component_Group(Comp_T) {
 		components = make([dynamic]Comp_T),
 		entity_indices = make(map[Entity]int)
 	}
