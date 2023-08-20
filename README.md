@@ -31,14 +31,17 @@ Position :: struct { x, y: int }
 // Adding a component
 ecs.add_entity_component(&world, entity, Position { 10, 10 })
 
+// Get component
+position := get_entity_component(world, entity, Position)
+
 // Querying components
 query := query_world_components(&world, Position, Velocity)
 defer destroy_query(&query)
 
 for query_next(&query) {
-	entity := get_query_entity(&query)
-	position := get_query_component(&query, Position)
-	velocity := get_query_component(&query, Velocity)
+	entity := get_query_entity(query)
+	position := get_query_component(query, Position)
+	velocity := get_query_component(query, Velocity)
 
 	// ...
 }

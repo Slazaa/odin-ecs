@@ -18,7 +18,7 @@ component_group_has :: proc(
 
 @private 
 add_to_component_group :: proc(
-    component_grp: ^Component_Group($Comp_T),
+    component_group: ^Component_Group($Comp_T),
     entity: Entity,
     component: Comp_T
 ) -> Maybe(Error) {
