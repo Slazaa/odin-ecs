@@ -32,18 +32,20 @@ Position :: struct { x, y: int }
 ecs.add_entity_component(&world, entity, Position { 10, 10 })
 
 // Get component
-position := get_entity_component(world, entity, Position)
+if position, ok := get_entity_component(world, entity, Position).?; ok {
+    // ...
+}
 
 // Querying components
 query := query_world_components(&world, Position, Velocity)
 defer destroy_query(&query)
 
 for query_next(&query) {
-	entity := get_query_entity(query)
-	position := get_query_component(query, Position)
-	velocity := get_query_component(query, Velocity)
+    entity := get_query_entity(query)
+    position := get_query_component(query, Position)
+    velocity := get_query_component(query, Velocity)
 
-	// ...
+    // ...
 }
 
 // Removing a component
@@ -53,11 +55,11 @@ ecs.remove_entity_component(&world, entity, Position)
 ## System
 ```odin
 hello_system :: proc(world: ^ecs.World) {
-	fmt.println("Hello!")
+    fmt.println("Hello!")
 }
 
 spam_system :: proc(world: ^ecs.World) {
-	fmt.println("I will execute every tick!")
+    fmt.println("I will execute every tick!")
 }
 
 // ...
@@ -82,7 +84,7 @@ add_world_resource(&world, My_Res(10))
 
 // Getting a resource
 if res, ok := get_world_resource(&world, My_Res); ok {
-	// ...
+    // ...
 }
 
 // Remove a resource
