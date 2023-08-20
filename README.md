@@ -62,15 +62,21 @@ spam_system :: proc(world: ^ecs.World) {
     fmt.println("I will execute every tick!")
 }
 
+bye_system :: proc(world: ^ecs.World) {
+    fmt.println("Bye!")
+}
+
 // ...
 
 // Adding a system
 ecs.add_world_startup_system(&world, hello_system)
 ecs.add_world_system(&world, spam_system)
+ecs.add_world_ending_system(&world, bye_system)
 
 // Removing a system
 ecs.remove_world_startup_system(&world, hello_system)
 ecs.remove_world_system(&world, spam_system)
+ecs.remove_world_ending_system(&world, bye_system)
 ```
 
 ## Resource
