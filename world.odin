@@ -600,7 +600,7 @@ world_has_resource :: proc(world: World, $Comp_T: typeid) -> bool {
 // assert(ecs.world_has_resource(&world, Res))
 // ```
 add_world_resource :: proc(world: ^World, res: $Res_T) -> Maybe(Error) {
-    if Res_T in world.resources {
+    if world_has_resource(world^, Res_T) {
         return .Resource_Already_Exists
     }
 
@@ -629,7 +629,7 @@ add_world_resource :: proc(world: ^World, res: $Res_T) -> Maybe(Error) {
 // assert(!ecs.world_has_resource(&world, Res))
 // ```
 remove_world_resource :: proc(world: ^World, $Res_T: typeid) -> Maybe(Error) {
-    if !world_has_resource(world, Res) {
+    if !world_has_resource(world, Res_T) {
         return .Resource_Does_Not_Exist
     }
 
@@ -652,7 +652,7 @@ remove_world_resource :: proc(world: ^World, $Res_T: typeid) -> Maybe(Error) {
 // res := ecs.get_world_resource(&world, Res)
 // ```
 get_world_resource :: proc(world: World, $Res_T: typeid) -> Maybe(^Res_T) {
-    if !world_has_resource(world, Res) {
+    if !world_has_resource(world, Res_T) {
         return nil
     }
 
