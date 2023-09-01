@@ -29,7 +29,7 @@ create_query :: proc(world: ^World) -> Query {
 // defer ecs.destroy_world(&world)
 //
 // entity := ecs.spawn(&world)
-// ecs.add_entity_component(&world, entity, Position { 10, 10 })
+// ecs.add_entity_component(&world, entity, Position{10, 10})
 //
 // query := ecs.query_components(&world, Position)
 // ecs.destroy_query(&query)
@@ -50,7 +50,7 @@ destroy_query :: proc(query: Query) {
 // defer ecs.destroy_world(&world)
 //
 // entity := ecs.spawn(&world)
-// ecs.add_entity_component(&world, entity, Position { 10, 10 })
+// ecs.add_entity_component(&world, entity, Position{10, 10})
 //
 // query := ecs.query_components(&world, Position)
 // defer ecs.destroy_query(&query)
@@ -74,7 +74,7 @@ query_next :: proc(query: ^Query) -> bool {
 // defer ecs.destroy_world(&world)
 //
 // entity := ecs.spawn(&world)
-// ecs.add_entity_component(&world, entity, Position { 10, 10 })
+// ecs.add_entity_component(&world, entity, Position{10, 10})
 //
 // query := ecs.query_components(&world, Position)
 // defer ecs.destroy_query(&query)
@@ -97,7 +97,7 @@ get_query_entity :: proc(query: Query) -> Entity {
 // defer ecs.destroy_world(&world)
 //
 // entity := ecs.spawn(&world)
-// ecs.add_entity_component(&world, entity, Position { 10, 10 })
+// ecs.add_entity_component(&world, entity, Position{10, 10})
 //
 // query := ecs.query_components(&world, Position)
 // defer ecs.destroy_query(&query)
