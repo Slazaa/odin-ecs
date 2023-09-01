@@ -252,7 +252,7 @@ get_entity_component :: proc(
 //
 // entity := ecs.spawn_entity(&world)
 //
-// ecs.add_entity_component(&world, entity, Position { 10, 10 })
+// ecs.add_entity_component(&world, entity, Position{10, 10})
 // ```
 add_entity_component :: proc(
     world: ^World,
@@ -280,7 +280,7 @@ add_entity_component :: proc(
 //
 // entity := ecs.spawn_entity(&world)
 //
-// ecs.add_entity_component(&world, entity, Position { 10, 10 })
+// ecs.add_entity_component(&world, entity, Position{10, 10})
 // ecs.remove_entity_component(&world, entity, Position)
 // ```
 remove_entity_component :: proc(
@@ -305,7 +305,7 @@ remove_entity_component :: proc(
 // defer ecs.destroy_world(&world)
 //
 // entity := ecs.spawn_entity(&world)
-// ecs.add_entity_component(&world, entity, Position { 10, 10 })
+// ecs.add_entity_component(&world, entity, Position{10, 10})
 //
 // positions := ecs.get_world_components(world, Position)
 // ```
@@ -330,8 +330,8 @@ get_world_components :: proc(world: World, $Comp_T: typeid) -> Maybe([]Comp_T) {
 //
 // entity := ecs.spawn_entity(&world)
 //
-// add_entity_component(&world, entity, Position { 10, 10 })
-// add_entity_component(&world, entity, Velocity { 10, 10 })
+// add_entity_component(&world, entity, Position{10, 10})
+// add_entity_component(&world, entity, Velocity{10, 10})
 //
 // query := query_world_components(&world, Position, Velocity)
 // ```
