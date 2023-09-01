@@ -26,7 +26,10 @@ schedule_has_system :: proc(schedule: Schedule, system: System) -> bool {
 }
 
 @private
-add_schedule_system :: proc(schedule: ^Schedule, system: System) -> Maybe(Error) {
+add_schedule_system :: proc(
+    schedule: ^Schedule,
+    system: System,
+) -> Maybe(Error) {
     if schedule_has_system(schedule^, system) {
         return Error.System_Already_Added
     }
