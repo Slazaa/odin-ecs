@@ -2,69 +2,72 @@ package ecs
 
 @private
 Schedule :: struct {
-	systems: [dynamic]System,
-	system_indices: map[System]int
+    systems: [dynamic]System,
+    system_indices: map[System]int,
 }
 
 @private
-init_schedule :: proc() -> Schedule {
-	return {
-		systems = make([dynamic]System),
-		system_indices = make(map[System]int)
-	}
+create_schedule :: proc() -> Schedule {
+    return {
+        systems = make([dynamic]System),
+        system_indices = make(map[System]int),
+    }
 }
 
 @private
-deinit_schedule :: proc(schedule: Schedule) {
-	delete(schedule.system_indices)
-	delete(schedule.systems)
+destroy_schedule :: proc(schedule: Schedule) {
+    delete(schedule.system_indices)
+    delete(schedule.systems)
 }
 
 @private
-schedule_has :: proc(schedule: Schedule, system: System) -> bool {
-	return system in schedule.system_indices
+schedule_has_system :: proc(schedule: Schedule, system: System) -> bool {
+    return system in schedule.system_indices
 }
 
 @private
-add_to_schedule :: proc(schedule: ^Schedule, system: System) -> Maybe(Error) {
-	if schedule_has(schedule^, system) {
-		return .System_Already_Added
-	}
+add_schedule_system :: proc(schedule: ^Schedule, system: System) -> Maybe(Error) {
+    if schedule_has_system(schedule^, system) {
+        return Error.System_Already_Added
+    }
 
-	append(&schedule.systems, system)
-	schedule.system_indices[system] = len(schedule.systems)
+    append(&schedule.systems, system)
+    schedule.system_indices[system] = len(schedule.systems)
 
-	return nil
+    return nil
 }
 
 @private
-remove_from_schedule :: proc(schedule: ^Schedule, system: System) -> Maybe(Error) {
-	if !schedule_has(schedule^, system) {
-		return .Unknown_System
-	}
+remove_schedule_system :: proc(
+    schedule: ^Schedule,
+    system: System,
+) -> Maybe(Error) {
+    if !schedule_has_system(schedule^, system) {
+        return .Unknown_System
+    }
 
-	system_index := schedule.system_indices[system]
-	ordered_remove(&schedule.systems, system_index)
+    system_index := schedule.system_indices[system]
+    ordered_remove(&schedule.systems, system_index)
 
-	for _, index in &schedule.system_indices {
-		if index > system_index {
-			index += 1
-		}
-	}
+    for _, index in &schedule.system_indices {
+        if index > system_index {
+            index += 1
+        }
+    }
 
-	delete_key(&schedule.system_indices, system)
+    delete_key(&schedule.system_indices, system)
 
-	return nil
+    return nil
 }
 
 @private
 run_schedule :: proc(schedule: Schedule, world: ^World) {
-	for system in schedule.systems {
-		system(world)
-	}
+    for system in schedule.systems {
+        system(world)
+    }
 }
 
 @private
-get_all_from_schedule :: proc(schedule: Schedule) -> []System {
-	return schedule.systems[:]
+get_all_schedule_systems :: proc(schedule: Schedule) -> []System {
+    return schedule.systems[:]
 }
