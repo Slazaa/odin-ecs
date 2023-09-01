@@ -180,7 +180,7 @@ register_component :: proc(world: ^World, $Comp_T: typeid) {
     
     component_group := cast(^Component_Group(Comp_T))world.components[Comp_T]
 
-    component_group^ = Component_Group(Comp_T) {
+    component_group^ = Component_Group(Comp_T){
         components = make([dynamic]Comp_T),
         entity_indices = make(map[Entity]int),
     }
@@ -198,16 +198,44 @@ register_component :: proc(world: ^World, $Comp_T: typeid) {
 //
 // entity := ecs.spawn_entity(&world)
 //
-// ecs.add_entity_component(&world, entity, Position { 10, 10 })
+// ecs.add_entity_component(&world, entity, Position{10, 10})
 //
 // assert(ecs.entity_has_component(world, entity, Position)) 
 // ```
 entity_has_component :: proc(
-    world: World, entity: Entity,
+    world: World,
+    entity: Entity,
     $Comp_T: typeid,
 ) -> bool {
     return component_group_has(
         (^Component_Group(Comp_T))(world.components[Comp_T]),
+        entity,
+    )
+}
+
+// Returns the `Component` of the `Entity`.
+//
+// # Examples
+//
+// ```odin
+// Position :: struct { x, y: int }
+//
+// world := ecs.create_world()
+// defer ecs.destroy_world(&world)
+//
+// entity := ecs.spawn_entity(&world)
+//
+// ecs.add_entity_component(&world, entity, Position{10, 10})
+//
+// entity_position := ecs.get_entity_component(world, entity, Position)
+// ```
+get_entity_component :: proc(
+    world: World,
+    entity: Entity,
+    $Comp_T: typeid,
+) -> Maybe(^Comp_T) {
+    return get_from_component_group(
+        (^Component_Group(Comp_T))(world.components[Comp_T])^,
         entity,
     )
 }
@@ -279,9 +307,9 @@ remove_entity_component :: proc(
 // entity := ecs.spawn_entity(&world)
 // ecs.add_entity_component(&world, entity, Position { 10, 10 })
 //
-// positions := ecs.get_components(world, Position)
+// positions := ecs.get_world_components(world, Position)
 // ```
-get_components :: proc(world: World, $Comp_T: typeid) -> Maybe([]Comp_T) {
+get_world_components :: proc(world: World, $Comp_T: typeid) -> Maybe([]Comp_T) {
     if !is_component_registered(world, Comp_T) {
         return nil
     }
@@ -305,7 +333,7 @@ get_components :: proc(world: World, $Comp_T: typeid) -> Maybe([]Comp_T) {
 // add_entity_component(&world, entity, Position { 10, 10 })
 // add_entity_component(&world, entity, Velocity { 10, 10 })
 //
-// query := query_components(&world, Position, Velocity)
+// query := query_world_components(&world, Position, Velocity)
 // ```
 query_components :: proc(
     world: ^World,
@@ -365,7 +393,7 @@ query_components :: proc(
 // world := ecs.create_world()
 // defer ecs.destroy_world(&world)
 //
-// ecs.add_system(&world, hello_system)
+// ecs.add_world_system(&world, hello_system)
 //
 // assert(ecs.world_has_system(&world, hello_system))
 // ```

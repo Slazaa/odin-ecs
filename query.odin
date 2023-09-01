@@ -105,11 +105,11 @@ get_query_entity :: proc(query: Query) -> Entity {
 // ecs.query_next(&query)
 // position := ecs.get_query_component(&query, Position)
 // ```
-get_query_component :: proc(query: Query, $Comp_T: typeid) -> Comp_T {
+get_query_component :: proc(query: Query, $Comp_T: typeid) -> ^Comp_T {
     comp_grp := (^Component_Group(Comp_T))(query.components[Comp_T])	
     entity := query.entities[query.current_index]
 
     assert(entity in comp_grp.entity_indices, "Invalid component type")
 
-    return comp_grp.components[comp_grp.entity_indices[entity]]
+    return &comp_grp.components[comp_grp.entity_indices[entity]]
 }
