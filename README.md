@@ -29,7 +29,7 @@ Position :: struct { x, y: int }
 // ...
 
 // Adding a component
-ecs.add_entity_component(&world, entity, Position { 10, 10 })
+ecs.add_entity_component(&world, entity, Position{10, 10})
 
 // Get component
 if position, ok := get_entity_component(world, entity, Position).?; ok {
