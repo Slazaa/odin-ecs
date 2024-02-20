@@ -8,4 +8,3 @@ Error :: enum {
 }
 
 Entity :: distinct uint
-System :: proc(world: ^World)

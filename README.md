@@ -41,23 +41,3 @@ for entity, ok := query_next(&query).?; ok {
 // Removing a component
 ecs.world_remove_component(&world, entity, Position)
 ```
-
-## System
-```odin
-hello_system :: proc(world: ^ecs.World) {
-    fmt.println("Hello!")
-}
-
-spam_system :: proc(world: ^ecs.World) {
-    fmt.println("I will execute every tick!")
-}
-
-bye_system :: proc(world: ^ecs.World) {
-    fmt.println("Bye!")
-}
-
-// Adding systems
-ecs.world_add_init_system(&world, hello_system)
-ecs.world_add_system(&world, spam_system)
-ecs.world_add_deinit_system(&world, bye_system)
-```

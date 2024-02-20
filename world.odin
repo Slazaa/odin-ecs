@@ -4,13 +4,7 @@ import "core:fmt"
 
 World :: struct {
     components: map[typeid]rawptr,
-
-    init_systems: [dynamic]System,
-    systems: [dynamic]System,
-    deinit_systems: [dynamic]System,
-
     should_run_init_systems: bool,
-
     next_entity: Entity,
 }
 
@@ -19,25 +13,12 @@ World :: struct {
 world_init :: proc() -> World {
     return {
         components = make(map[typeid]rawptr),
-
-        init_systems = make([dynamic]System),
-        systems = make([dynamic]System),
-        deinit_systems = make([dynamic]System),
-
         should_run_startup = true,
     }
 }
 
 // Deinitiliazes the `World`.
 world_deinit :: proc(world: ^World) {
-    for system in world.deinit_systems {
-        system(world)
-    }
-
-    delete(world.deinit_systems)
-    delete(world.systems)
-    delete(world.init_systems)
-
     for _, component_group in world.components {
         delete((^Component_Group(struct{}))(component_group).components)
         delete((^Component_Group(struct{}))(component_group).entity_indices)
@@ -45,22 +26,6 @@ world_deinit :: proc(world: ^World) {
     }
 
     delete(world.components)
-}
-
-// Updates the `World`.
-// This should be called every tick.
-world_update :: proc(world: ^World) {
-    if world.should_run_init_systems {
-        for system in world.init_systems {
-            system(world)
-        }
-
-        world.should_run_init_systems = false
-    }
-
-    for system in world.systems {
-        system(world)
-    }
 }
 
 // Spawns a new `Entity` into the `World`.
@@ -72,7 +37,7 @@ world_spawn :: proc(world: ^World) -> Entity {
 }
 
 // Despawns an `Entity` from the `World`.
-despawn_entity :: proc(world: ^World, entity: Entity) {
+world_despawn :: proc(world: ^World, entity: Entity) {
     for _, component_group in world.components {
         remove_from_component_group(
             cast(^Component_Group(struct{}))component_group,
