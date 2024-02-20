@@ -5,7 +5,7 @@ import "core:fmt"
 @private
 Component_Group :: struct($Comp_T: typeid) {
     components: [dynamic]Comp_T,
-    entity_indices: map[Entity]int
+    entities: map[Entity]int
 }
 
 @private 

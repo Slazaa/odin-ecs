@@ -1,55 +1,45 @@
-A simple Entity Component System written in Odin.
+A simple ECS written in Odin.
 
 ## World
 ```odin
-world := ecs.create_world()
-defer ecs.destroy_world(&world)
+world := ecs.world_init()
+defer ecs.world_deinit(&world)
 
-// ...
-
-// Run a tick
-ecs.run_world(&world)
+// Updates the world
+ecs.world_update(&world)
 ```
 
 ## Entity
 ```odin
-// ...
+// Spawning entities
+entity := ecs.world_spawn(&world)
 
-// Spawning an entity
-entity := ecs.spawn_entity(&world)
-
-// Despawning an entity
-ecs.despawn_entity(&world, entity)
+// Despawning entities
+ecs.world_despawn(&world, entity)
 ```
 
 ## Component
 ```odin
 Position :: struct { x, y: int }
 
-// ...
+// Adding components
+ecs.world_add_component(&world, entity, Position{10, 10})
 
-// Adding a component
-ecs.add_entity_component(&world, entity, Position{10, 10})
-
-// Get component
-if position, ok := get_entity_component(world, entity, Position).?; ok {
+// Getting components
+if position, ok := world_get_component(world, entity, Position).?; ok {
     // ...
 }
 
 // Querying components
-query := query_world_components(&world, Position, Velocity)
-defer destroy_query(&query)
+query := world_query(&world, []typeid{Position, Velocity}, []typeid{})
 
-for query_next(&query) {
-    entity := get_query_entity(query)
-    position := get_query_component(query, Position)
-    velocity := get_query_component(query, Velocity)
-
-    // ...
+for entity, ok := query_next(&query).?; ok {
+    position := world_get_component(world, Position)
+    velocity := world_get_component(world, Velocity)
 }
 
 // Removing a component
-ecs.remove_entity_component(&world, entity, Position)
+ecs.world_remove_component(&world, entity, Position)
 ```
 
 ## System
@@ -66,33 +56,8 @@ bye_system :: proc(world: ^ecs.World) {
     fmt.println("Bye!")
 }
 
-// ...
-
-// Adding a system
-ecs.add_world_startup_system(&world, hello_system)
-ecs.add_world_system(&world, spam_system)
-ecs.add_world_ending_system(&world, bye_system)
-
-// Removing a system
-ecs.remove_world_startup_system(&world, hello_system)
-ecs.remove_world_system(&world, spam_system)
-ecs.remove_world_ending_system(&world, bye_system)
-```
-
-## Resource
-```odin
-My_Res :: distinct int
-
-// ...
-
-// Adding a resource
-add_world_resource(&world, My_Res(10))
-
-// Getting a resource
-if res, ok := get_world_resource(&world, My_Res); ok {
-    // ...
-}
-
-// Remove a resource
-remove_world_resource(&world, My_Res)
+// Adding systems
+ecs.world_add_init_system(&world, hello_system)
+ecs.world_add_system(&world, spam_system)
+ecs.world_add_deinit_system(&world, bye_system)
 ```

@@ -2,58 +2,41 @@ package ecs
 
 import "core:fmt"
 
-// A `World` holds `Component`'s, `Entity`'s and `System`'s.
 World :: struct {
     components: map[typeid]rawptr,
-    startup_schedule: Schedule,
-    schedule: Schedule,
-    ending_schedule: Schedule,
-    resources: map[typeid]Resource,
-    should_run_startup: bool,
+
+    init_systems: [dynamic]System,
+    systems: [dynamic]System,
+    deinit_systems: [dynamic]System,
+
+    should_run_init_systems: bool,
+
     next_entity: Entity,
 }
 
-// Creates a new `World`.
-// 
-// # Examples
-//
-// ```odin
-// world := ecs.create_world()
-// defer ecs.destroy_world(&world)
-// ```
-create_world :: proc() -> World {
+// Initializes a new `World`.
+// Deinitialize it with `world_deinit`.
+world_init :: proc() -> World {
     return {
         components = make(map[typeid]rawptr),
-        startup_schedule = create_schedule(),
-        schedule = create_schedule(),
-        ending_schedule = create_schedule(),
-        resources = make(map[typeid]rawptr),
+
+        init_systems = make([dynamic]System),
+        systems = make([dynamic]System),
+        deinit_systems = make([dynamic]System),
+
         should_run_startup = true,
     }
 }
 
-// Runs every ending system of a `World` and then destroy it.
-//
-// # Examples
-//
-// ```odin
-// world := ecs.create_world()
-// ecs.destroy_world(&world)
-// ```
-destroy_world :: proc(world: ^World) {
-    for system in get_all_schedule_systems(world.ending_schedule) {
+// Deinitiliazes the `World`.
+world_deinit :: proc(world: ^World) {
+    for system in world.deinit_systems {
         system(world)
     }
 
-    destroy_schedule(world.ending_schedule)
-    destroy_schedule(world.schedule)
-    destroy_schedule(world.startup_schedule)
-
-    for _, resource in world.resources {
-        free(resource)
-    }
-
-    delete(world.resources)	
+    delete(world.deinit_systems)
+    delete(world.systems)
+    delete(world.init_systems)
 
     for _, component_group in world.components {
         delete((^Component_Group(struct{}))(component_group).components)
@@ -64,84 +47,31 @@ destroy_world :: proc(world: ^World) {
     delete(world.components)
 }
 
-// Runs every `System` of a `World` once.
-// If `run_world_startup` were not called beofore this procedure,
-// it will be called.
-//
-// # Examples
-//
-// ```odin
-// hello_system :: proc(world: ^ecs.World) {
-//     fmt.println("Hello!")
-// }
-//
-// world := ecs.create_world()
-// defer ecs.destroy_world(&world)
-//
-// ecs.add_system(&world, hello_system)
-//
-// for {
-//     ecs.run_world(&world)
-// }
-// ```
-run_world :: proc(world: ^World) {
-    if world.should_run_startup {
-        run_world_startup(world);
+// Updates the `World`.
+// This should be called every tick.
+world_update :: proc(world: ^World) {
+    if world.should_run_init_systems {
+        for system in world.init_systems {
+            system(world)
+        }
+
+        world.should_run_init_systems = false
     }
 
-    run_schedule(world.schedule, world)
+    for system in world.systems {
+        system(world)
+    }
 }
 
-// Runs every startup `System` of a `World` and then remove the startup systems.
-// This procedure should only be called once for a given `World`.
-//
-// # Examples
-//
-// ```odin
-// hello_system :: proc(world: ^ecs.World) {
-//     fmt.println("Hello!")
-// }
-//
-// world := ecs.create_world()
-// defer ecs.destroy_world(&world)
-//
-// ecs.add_startup_system(&world, hello_system)
-//
-// ecs.run_world_startup(&world)
-// ```
-run_world_startup :: proc(world: ^World) {
-    run_schedule(world.startup_schedule, world)
-    world.should_run_startup = false
-}
-
-// spawn_entitys an entity into a `World`.
-//
-// # Examples
-//
-// ```odin
-// world := ecs.create_world()
-// ecs.defer destroy_world(&world)
-//
-// entity := ecs.spawn_entity(&world)
-// ```
-spawn_entity :: proc(world: ^World) -> (entity: Entity) {
-    entity = world.next_entity
+// Spawns a new `Entity` into the `World`.
+world_spawn :: proc(world: ^World) -> Entity {
+    entity := world.next_entity
     world.next_entity += 1
 
-    return
+    return entity
 }
 
-// Despawn_entitys an entity of a `World`
-//
-// # Examples
-//
-// ```odin
-// world := ecs.create_world()
-// defer ecs.destroy_world(&world)
-//
-// entity := ecs.spawn_entity(&world)
-// ecs.despawn_entity(&world, entity)
-// ```
+// Despawns an `Entity` from the `World`.
 despawn_entity :: proc(world: ^World, entity: Entity) {
     for _, component_group in world.components {
         remove_from_component_group(
