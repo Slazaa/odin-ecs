@@ -23,13 +23,19 @@ ecs.world_despawn(&world, entity)
 Position :: struct { x, y: int }
 
 // Adding components
-ecs.world_add_component(&world, entity, Position{10, 10})
+ecs.world_add_component(&world, entity, Position { 10, 10 })
 
 // Getting components
 if position, ok := world_get_component(world, entity, Position).?; ok {
     // ...
 }
 
+// Removing a component
+ecs.world_remove_component(&world, entity, Position)
+```
+
+## Queries
+```odin
 // Querying components
 query := world_query(&world, []typeid{Position, Velocity}, []typeid{})
 
@@ -37,7 +43,4 @@ for entity, ok := query_next(&query).?; ok {
     position := world_get_component(world, Position)
     velocity := world_get_component(world, Velocity)
 }
-
-// Removing a component
-ecs.world_remove_component(&world, entity, Position)
 ```

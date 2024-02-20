@@ -65,13 +65,23 @@ storage_remove :: proc(storage: ^Storage($Component), entity: Entity) -> Maybe(E
 }
 
 @private
-get_from_component_group :: proc(
-    component_group: Component_Group($Comp_T),
-    entity: Entity
-) -> Maybe(^Comp_T) {
-    if !component_group_has_entity(component_group, entity) {
+storage_get :: proc(storage: Storage($Component), entity: Entity) -> Maybe(Component) {
+    entity_index, err := storage_get_entity_index(storage, entity)
+
+    if err != nil {
         return nil
     }
 
-    return &component_group.components[entity]
+    return storage.components[entity_index]
+}
+
+@private
+storage_get_ptr :: proc(storage: Storage($Component), entity: Entity) -> Maybe(^Component) {
+    entity_index, err := storage_get_entity_index(storage, entity)
+
+    if err != nil {
+        return nil
+    }
+
+    return &storage.components[entity_index]
 }
